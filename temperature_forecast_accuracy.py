@@ -134,12 +134,59 @@ def create_full_chart(combined_forecast_accuracy):
     curdoc().add_root(column(variable_select, plot))
     # curdoc().title = "forecast_accuracy_full_chart"
 
-if __name__ == "__main__":
-    combined_forecast_accuracy = []
+
+def create_full_chart_1(combined_forecast_accuracy):
+
+    plot = figure(width=800, height=400)
+    plot.x_range = Range1d(7, 0)
+
+    first_variable = variables[0]
+    forecast_devs_df = combined_forecast_accuracy[first_variable]
+    title_text = "Forecast accuracy of " + first_variable
+    plot.title.text = title_text
+
+    lines = [0]*len(locations)
+    for city_id in range(len(locations)):
+        lines[city_id] = plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]], color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
+    # plot.add_layout(plot.legend, 'right')
+
+    plot.xaxis.axis_label = "forecast from _ days before"
+    plot.yaxis.axis_label = first_variable
+
+    plot.legend.click_policy = "mute"
+
+    def update_plot(attr, old, new):
+        first_variable = variable_select.value
+        plot.title.text = "Forecast accuracy of " + first_variable
+        forecast_devs_df = combined_forecast_accuracy[variable_select.value]
+        for city_id in range(len(locations)):
+            plot.renderers.remove(lines[city_id])
+            lines[city_id] = plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]], color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
+
+    variable_select = Select(title="Option:", value=variables[0], options=variables)
+    variable_select.on_change('value', update_plot)
+
+    curdoc().add_root(column(variable_select, plot))
+    curdoc().title = "forecast_accuracy_full_chart"
+
+def main():
+    combined_forecast_accuracy = dict()
 
     for variable in variables:
-         combined_forecast_accuracy.append(calculate_city_avgs(variable))
-         # if variable == "temperature_2m":
-         #    create_chart_forecast_accuracy_over_time(variable, calculate_city_avgs(variable))
+        combined_forecast_accuracy[variable] = calculate_city_avgs(variable)
+        # if variable == "temperature_2m":
+        #     create_chart_forecast_accuracy_over_time(variable, calculate_city_avgs(variable))
 
-    create_full_chart(combined_forecast_accuracy)
+    create_full_chart_1(combined_forecast_accuracy)
+
+if __name__ == "__main__":
+    main()
+
+## main
+
+combined_forecast_accuracy = dict()
+
+for variable in variables:
+    combined_forecast_accuracy[variable] = calculate_city_avgs(variable)
+
+create_full_chart_1(combined_forecast_accuracy)
