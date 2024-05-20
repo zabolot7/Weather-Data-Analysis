@@ -5,12 +5,20 @@ import matplotlib.pyplot as plt
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, Range1d, Select
-from bokeh.palettes import Bokeh6
+from bokeh.palettes import Bokeh6, Blues9
 from bokeh.plotting import figure
 from bokeh.io import show
 
 locations = ["Rovaniemi", "Warsaw", "Tripoli", "Kinshasa", "Cape_Town"]
 variables = ["temperature_2m", "precipitation", "cloud_cover", "wind_speed_10m", "wind_direction_10m"]
+
+locations_dict = {
+    "Rovaniemi": 0,
+    "Warsaw": 1,
+    "Tripoli": 2,
+    "Kinshasa": 3,
+    "Cape_Town": 4
+}
 
 variables_dict = {
     "temperature_2m": 0,
@@ -19,6 +27,25 @@ variables_dict = {
     "wind_speed_10m": 3,
     "wind_direction_10m": 4
 }
+
+def merge_forecast(city, variable):
+    actual_filename = "weather_" + city + ".csv"
+    forecast_filename = "forecast_" + city + ".csv"
+
+    city_actual_df = pd.read_csv(actual_filename)
+    city_forecast_df = pd.read_csv(forecast_filename)
+
+    city_variable_actual_df = city_actual_df.loc[:, ["datetime", variable]]
+
+    forecast_colnames = ["datetime"]
+    for day_id in range(8):
+        curr_str = variable + "_previous_day" + str(day_id)
+        forecast_colnames.append(curr_str)
+
+    city_forecast_df = city_forecast_df.loc[:, forecast_colnames]
+    city_variable_df = pd.merge(city_variable_actual_df, city_forecast_df, how="inner", on="datetime")
+
+    return city_variable_df
 
 def calculate_forecast_devs(city, variable):
     actual_filename = "weather_" + city + ".csv"
@@ -164,30 +191,78 @@ def create_full_chart_1(combined_forecast_accuracy):
             plot.renderers.remove(lines[city_id])
             lines[city_id] = plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]], color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
 
-    variable_select = Select(title="Option:", value=variables[0], options=variables)
+    variable_select = Select(title="Variable:", value=variables[0], options=variables)
     variable_select.on_change('value', update_plot)
 
     curdoc().add_root(column(variable_select, plot))
     curdoc().title = "forecast_accuracy_full_chart"
 
-def main():
-    combined_forecast_accuracy = dict()
 
-    for variable in variables:
-        combined_forecast_accuracy[variable] = calculate_city_avgs(variable)
-        # if variable == "temperature_2m":
-        #     create_chart_forecast_accuracy_over_time(variable, calculate_city_avgs(variable))
+def create_chart_by_city(forecast_accuracy):
 
-    create_full_chart_1(combined_forecast_accuracy)
+    plot = figure(width=1200, height=600, x_axis_type="datetime")
 
-if __name__ == "__main__":
-    main()
+    first_variable = variables[0]
+    first_location = locations[0]
+    forecast_devs_df = forecast_accuracy[0][0]
+    title_text = "Forecast of " + first_variable + " in " + first_location
+    plot.title.text = title_text
 
-## main
+    lines = [0]*9
+    # forecast_devs_df_datetime = forecast_devs_df.set_index("datetime")
+    # print(forecast_devs_df.loc[:, "datetime"].to_list())
+    # print(forecast_devs_df.loc[:, "temperature_2m_previous_day0"])
+    datelist = list(range(720))
+    # print(type(forecast_devs_df.loc[:, "temperature_2m_previous_day0"]))
+    for forecast_from_day in range(7, -1, -1):
+        col_name = first_variable + "_previous_day" + str(forecast_from_day)
+        # lines[forecast_from_day] = plot.line(forecast_devs_df.loc[:, "datetime"].to_list(), forecast_devs_df.loc[:, col_name], color=Bokeh8[forecast_from_day], width=3, legend_label=col_name)
+        lines[forecast_from_day+1] = plot.line(pd.to_datetime(forecast_devs_df.loc[:, "datetime"], utc=True).to_list(),
+                                             forecast_devs_df.loc[:, col_name], color=Blues9[forecast_from_day],
+                                             width=1, legend_label="forecast from " + str(forecast_from_day) + " days before")
+    lines[0] = plot.line(pd.to_datetime(forecast_devs_df.loc[:, "datetime"], utc=True).to_list(), forecast_devs_df.loc[:, first_variable], color=Bokeh6[0],
+                         width=1, legend_label="actual data")
+    # plot.line(datelist, forecast_devs_df.loc[:, "temperature_2m_previous_day0"],
+    #           color=Bokeh8[0], width=3)
+    # plot.add_layout(plot.legend, 'right')
 
-combined_forecast_accuracy = dict()
+    plot.xaxis.axis_label = "date"
+    plot.yaxis.axis_label = first_variable
 
-for variable in variables:
-    combined_forecast_accuracy[variable] = calculate_city_avgs(variable)
+    plot.legend.click_policy = "hide"
 
-create_full_chart_1(combined_forecast_accuracy)
+    def update_plot(attr, old, new):
+        # plot.legend.items = []
+        first_variable = variable_select.value
+        first_location = location_select.value
+        plot.title.text = "Forecast of " + first_variable + " in " + first_location
+        forecast_devs_df = forecast_accuracy[variables_dict[first_variable]][locations_dict[first_location]]
+        plot.yaxis.axis_label = first_variable
+        for forecast_from_day in range(7, -1, -1):
+            plot.renderers.remove(lines[forecast_from_day+1])
+            col_name = first_variable + "_previous_day" + str(forecast_from_day)
+            # lines[forecast_from_day] = plot.line(forecast_devs_df.loc[:, "datetime"].to_list(), forecast_devs_df.loc[:, col_name],
+            #                                      color=Bokeh6[forecast_from_day + 1], width=3, legend_label=col_name)
+            lines[forecast_from_day+1] = plot.line(datelist,
+                                                 forecast_devs_df.loc[:, col_name],
+                                                 color=Blues9[forecast_from_day], width=1, legend_label="forecast from " + str(forecast_from_day) + " days before")
+        plot.renderers.remove(lines[0])
+        lines[0] = plot.line(datelist, forecast_devs_df.loc[:, first_variable], color=Bokeh6[0],
+                             width=1, legend_label='actual data')
+
+    variable_select = Select(title="Variable:", value=variables[0], options=variables)
+    variable_select.on_change('value', update_plot)
+
+    location_select = Select(title="Location:", value=locations[0], options=locations)
+    location_select.on_change('value', update_plot)
+
+    curdoc().add_root(column(variable_select, location_select, plot))
+    curdoc().title = "forecast_accuracy_full_chart"
+    # show(plot)
+
+
+# def main():
+#     pass
+#
+# if __name__ == "__main__":
+#     main()
