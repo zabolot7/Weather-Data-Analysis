@@ -170,9 +170,8 @@ def create_chart_by_city(forecast_accuracy):
                                              width=1, legend_label="forecast from " + str(forecast_from_day) + " days before")
     lines[0] = plot.line(pd.to_datetime(forecast_devs_df.loc[:, "datetime"], utc=True).to_list(), forecast_devs_df.loc[:, first_variable], color=Bokeh6[0],
                          width=1, legend_label="actual data")
-    plot.x_range.start = datelist[0]
-    plot.x_range.end = datelist[-1]
-    # plot.add_layout(plot.legend, 'right')
+    plot.x_range = Range1d(datelist[0], datelist[-1])
+    #plot.add_layout(plot.legend, 'right')
 
     plot.xaxis.axis_label = "date"
     plot.yaxis.axis_label = first_variable
@@ -188,16 +187,18 @@ def create_chart_by_city(forecast_accuracy):
         forecast_devs_df = forecast_accuracy[variables_dict[first_variable]][locations_dict[first_location]]
         plot.yaxis.axis_label = first_variable
         for forecast_from_day in range(7, -1, -1):
+            visibility = lines[forecast_from_day+1].visible
             plot.renderers.remove(lines[forecast_from_day+1])
             col_name = first_variable + "_previous_day" + str(forecast_from_day)
             lines[forecast_from_day+1] = plot.line(datelist,
                                                  forecast_devs_df.loc[:, col_name],
                                                  color=Blues9[forecast_from_day], width=1, legend_label="forecast from " + str(forecast_from_day) + " days before")
+            lines[forecast_from_day+1].visible = visibility
+        visibility = lines[0].visible
         plot.renderers.remove(lines[0])
         lines[0] = plot.line(datelist, forecast_devs_df.loc[:, first_variable], color=Bokeh6[0],
                              width=1, legend_label='actual data')
-        plot.x_range.start = date_range_slider.value[0]
-        plot.x_range.end = date_range_slider.value[1]
+        lines[0].visible = visibility
 
     def update_axis(attr, old, new):
         plot.x_range.start = date_range_slider.value[0]
