@@ -3,7 +3,7 @@ import pandas as pd
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
-from bokeh.models import Range1d, Select, DateRangeSlider, DatetimeTickFormatter
+from bokeh.models import Range1d, Select, DateRangeSlider, DatetimeTickFormatter, Legend
 from bokeh.palettes import Bokeh6, Blues9
 from bokeh.plotting import figure
 from bokeh.io import show
@@ -127,9 +127,12 @@ def create_full_chart(combined_forecast_accuracy):
     plot.title.text = title_text
 
     lines = [0]*len(locations)
+    items = []
     for city_id in range(len(locations)):
-        lines[city_id] = plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]], color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
-    # plot.add_layout(plot.legend, 'right')
+        lines[city_id] = plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]], color=Bokeh6[city_id + 1], width=3)
+        items.append((locations[city_id], [lines[city_id]]))
+    legend = Legend(items=items, location=(10, 196))
+    plot.add_layout(legend, 'right')
 
     plot.xaxis.axis_label = "forecast from _ days before"
     plot.yaxis.axis_label = variables_with_unit[0]
@@ -144,7 +147,8 @@ def create_full_chart(combined_forecast_accuracy):
         for city_id in range(len(locations)):
             muted = lines[city_id].muted
             plot.renderers.remove(lines[city_id])
-            lines[city_id] = plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]], color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
+            lines[city_id] = plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]],
+                                       color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
             lines[city_id].muted = muted
 
     variable_select = Select(title="Variable:", value=variables[0], options=variables)
@@ -156,7 +160,7 @@ def create_full_chart(combined_forecast_accuracy):
 
 def create_chart_by_city(forecast_accuracy):
 
-    plot = figure(width=1200, height=600, x_axis_type="datetime")
+    plot = figure(width=1400, height=600, x_axis_type="datetime")
 
     first_variable = variables[0]
     first_location = locations[0]
@@ -166,15 +170,21 @@ def create_chart_by_city(forecast_accuracy):
 
     lines = [0]*9
     datelist = pd.to_datetime(forecast_devs_df.loc[:, "datetime"], utc=True).to_list()
+    items = []
     for forecast_from_day in range(7, -1, -1):
         col_name = first_variable + "_previous_day" + str(forecast_from_day)
-        lines[forecast_from_day+1] = plot.line(datelist,
-                                             forecast_devs_df.loc[:, col_name], color=Blues9[forecast_from_day],
-                                             width=1, legend_label="forecast from " + str(forecast_from_day) + " days before")
-    lines[0] = plot.line(pd.to_datetime(forecast_devs_df.loc[:, "datetime"], utc=True).to_list(), forecast_devs_df.loc[:, first_variable], color=Bokeh6[0],
-                         width=1, legend_label="actual data")
+        lines[forecast_from_day+1] = plot.line(datelist, forecast_devs_df.loc[:, col_name],
+                                               color=Blues9[forecast_from_day], width=1, visible=False)
+        items.append(("forecast from " + str(forecast_from_day) + " days before", [lines[forecast_from_day+1]]))
+    lines[2].visible = True
+    lines[4].visible = True
+    lines[6].visible = True
+    lines[0] = plot.line(pd.to_datetime(forecast_devs_df.loc[:, "datetime"], utc=True).to_list(),
+                         forecast_devs_df.loc[:, first_variable], color=Bokeh6[0], width=1)
+    items.append(("actual data", [lines[0]]))
     plot.x_range = Range1d(datelist[0], datelist[-1])
-    #plot.add_layout(plot.legend, 'right')
+    legend = Legend(items=items, location=(10, 300))
+    plot.add_layout(legend, 'right')
 
     plot.xaxis.axis_label = "date"
     plot.yaxis.axis_label = variables_with_unit[0]

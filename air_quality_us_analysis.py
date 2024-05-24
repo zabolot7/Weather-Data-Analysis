@@ -78,6 +78,8 @@ def create_plot():
                toolbar_location=None, tools="")
 
     plot.vbar(x='x', top='counts', width=0.9, source=source)
+    plot.line(locations, aq_population_df["population"], width=3, color="red")
+    plot.line(locations, aq_population_df["density"], width=3, color="green")
 
     plot.y_range.start = 0
     plot.x_range.range_padding = 0.1
