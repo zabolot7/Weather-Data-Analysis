@@ -4,7 +4,7 @@ import requests_cache
 import pandas as pd
 from retry_requests import retry
 
-def download_forecasts_csv():
+def download_forecasts_csv(openmeteo):
     url = "https://previous-runs-api.open-meteo.com/v1/forecast"
     params = {
         "latitude": [66.512, 52.351, 32.941, -4.372, -33.926],
@@ -137,7 +137,7 @@ def download_forecasts_csv():
         # print(current_file_name)
         hourly_dataframe.to_csv(current_file_name)
 
-def download_weather_csv():
+def download_weather_csv(openmeteo):
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
         "latitude": [66.512, 52.351, 32.941, -4.372, -33.926],
@@ -180,10 +180,13 @@ def download_weather_csv():
         current_file_name = "weather_" + locations[location_id] + ".csv"
         hourly_dataframe.to_csv(current_file_name)
 
-if __name__ == '__main__':
+def main():
     cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
     retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
     openmeteo = openmeteo_requests.Client(session=retry_session)
 
-    download_forecasts_csv()
-    download_weather_csv()
+    download_forecasts_csv(openmeteo)
+    download_weather_csv(openmeteo)
+
+if __name__ == '__main__':
+    main()

@@ -10,6 +10,7 @@ from bokeh.io import show
 
 locations = ["Rovaniemi", "Warsaw", "Tripoli", "Kinshasa", "Cape_Town"]
 variables = ["temperature_2m", "precipitation", "cloud_cover", "wind_speed_10m", "wind_direction_10m"]
+variables_with_unit = ["temperature [°C]", "precipitation [mm]", "cloud_cover [%]", "wind_speed [km/h]", "wind_direction_10m [°]"]
 
 locations_dict = {
     "Rovaniemi": 0,
@@ -131,7 +132,7 @@ def create_full_chart(combined_forecast_accuracy):
     # plot.add_layout(plot.legend, 'right')
 
     plot.xaxis.axis_label = "forecast from _ days before"
-    plot.yaxis.axis_label = first_variable
+    plot.yaxis.axis_label = variables_with_unit[0]
 
     plot.legend.click_policy = "mute"
 
@@ -139,7 +140,7 @@ def create_full_chart(combined_forecast_accuracy):
         first_variable = variable_select.value
         plot.title.text = "Forecast accuracy of " + first_variable
         forecast_devs_df = combined_forecast_accuracy[variable_select.value]
-        plot.yaxis.axis_label = first_variable
+        plot.yaxis.axis_label = variables_with_unit[variables_dict[first_variable]]
         for city_id in range(len(locations)):
             muted = lines[city_id].muted
             plot.renderers.remove(lines[city_id])
@@ -176,7 +177,7 @@ def create_chart_by_city(forecast_accuracy):
     #plot.add_layout(plot.legend, 'right')
 
     plot.xaxis.axis_label = "date"
-    plot.yaxis.axis_label = first_variable
+    plot.yaxis.axis_label = variables_with_unit[0]
 
     plot.legend.click_policy = "hide"
 
@@ -187,7 +188,7 @@ def create_chart_by_city(forecast_accuracy):
         first_location = location_select.value
         plot.title.text = "Forecast of " + first_variable + " in " + first_location
         forecast_devs_df = forecast_accuracy[variables_dict[first_variable]][locations_dict[first_location]]
-        plot.yaxis.axis_label = first_variable
+        plot.yaxis.axis_label = variables_with_unit[variables_dict[first_variable]]
         for forecast_from_day in range(7, -1, -1):
             visibility = lines[forecast_from_day+1].visible
             plot.renderers.remove(lines[forecast_from_day+1])
