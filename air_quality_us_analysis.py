@@ -5,10 +5,11 @@ from scipy import stats
 
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
-from bokeh.models import Range1d, Select, DateRangeSlider, DatetimeTickFormatter, ColumnDataSource, FactorRange
+from bokeh.models import Select, ColumnDataSource, Legend, HoverTool
 from bokeh.palettes import Bokeh8
 from bokeh.plotting import figure
 from bokeh.io import show
+from bokeh.transform import dodge
 
 locations = ["New York", "Los Angeles", "Chicago", "Dallas", "Phoenix", "San Francisco", "Portland", "Nashville"]
 
@@ -65,26 +66,48 @@ def normalize_aq_population():
 
 
 def create_plot():
-    # aq_population_df = merge_population_aq()
+    aq_values = merge_population_aq()
+    aq_values.set_index("city", inplace=True, drop=True)
+    aq_values.columns = ["population_1", "density_1", "pm10_1", "pm2_5_1", "carbon_monoxide_1",
+                         "nitrogen_dioxide_1", "sulphur_dioxide_1"]
     aq_population_df = normalize_aq_population()
+    aq_population_df = aq_population_df.merge(aq_values, on="city", how="left")
 
-    labels = [(location, variable) for location in locations for variable in aq_population_df.columns[3:]]
-    counts = sum(zip(aq_population_df["pm10"], aq_population_df["pm2_5"], aq_population_df["carbon_monoxide"],
-                     aq_population_df["nitrogen_dioxide"], aq_population_df["sulphur_dioxide"]), ())
+    source = ColumnDataSource(aq_population_df)
+    plot = figure(x_range=locations, title="Air Quality", height=400, width=800)
+    variables = aq_population_df.columns[3:8]
+    offset = -0.3
+    items_aq = []
+    for variable_id in range(len(variables)):
+        vbar = plot.vbar(x=dodge("city", offset, range=plot.x_range), top=variables[variable_id], source=source,
+                  width=0.12, color=Bokeh8[variable_id])
+        offset += 0.15
+        items_aq.append((variables[variable_id], [vbar]))
+        hover = HoverTool(tooltips=[
+            (variables[variable_id], f"@{variables[variable_id]}_1" + " μg/m³")
+        ], renderers=[vbar])
+        plot.add_tools(hover)
 
-    source = ColumnDataSource(data=dict(x=labels, counts=counts))
+    population_line = plot.line(locations, aq_population_df["population"], width=3, color=Bokeh8[5])
+    density_line = plot.line(locations, aq_population_df["density"], width=3, color=Bokeh8[6])
 
-    plot = figure(x_range=FactorRange(*labels), height=350, title="Air Quality",
-               toolbar_location=None, tools="")
+    # legend_aq = Legend(items=items_aq, location=(10, 150))
+    # legend_aq.title = "Bars:"
+    # plot.add_layout(legend_aq, "right")
+    #
+    # items_lines = [("population", [population_line]), ("density", [density_line])]
+    # legend_lines = Legend(items=items_lines, location=(10, 150))
+    # legend_lines.title = "Lines:"
+    # plot.add_layout(legend_lines, "right")
 
-    plot.vbar(x='x', top='counts', width=0.9, source=source)
-    plot.line(locations, aq_population_df["population"], width=3, color="red")
-    plot.line(locations, aq_population_df["density"], width=3, color="green")
+    items_aq.append(("population", [population_line]))
+    items_aq.append(("density", [density_line]))
+    legend = Legend(items=items_aq, location=(10, 150))
+    plot.add_layout(legend, "right")
 
-    plot.y_range.start = 0
-    plot.x_range.range_padding = 0.1
-    plot.xaxis.major_label_orientation = 1
-    plot.xgrid.grid_line_color = None
+    #legends = column(legend_aq, legend_lines)
+
+    plot.legend.click_policy = "hide"
 
     show(plot)
 
