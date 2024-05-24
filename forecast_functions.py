@@ -183,7 +183,7 @@ def create_chart_by_city(forecast_accuracy):
     lines[0] = plot.line(pd.to_datetime(forecast_devs_df.loc[:, "datetime"], utc=True).to_list(),
                          forecast_devs_df.loc[:, first_variable], color=Bokeh6[0], width=1)
     items.append(("actual data", [lines[0]]))
-    plot.x_range = Range1d(datelist[0], datelist[-1])
+    plot.x_range = Range1d(datelist[0], datelist[150])
     legend = Legend(items=items, location=(10, 300))
     plot.add_layout(legend, 'right')
 
@@ -218,7 +218,7 @@ def create_chart_by_city(forecast_accuracy):
         plot.x_range.start = date_range_slider.value[0]
         plot.x_range.end = date_range_slider.value[1]
 
-    date_range_slider = DateRangeSlider(value=(datelist[0], datelist[-1]),
+    date_range_slider = DateRangeSlider(value=(datelist[0], datelist[150]),
                                         start=datelist[0], end=datelist[-1])
     date_range_slider.on_change('value', update_axis)
 
