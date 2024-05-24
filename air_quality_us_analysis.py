@@ -68,10 +68,13 @@ def normalize_aq_population():
 def create_plot():
     aq_values = merge_population_aq()
     aq_values.set_index("city", inplace=True, drop=True)
-    aq_values.columns = ["population_1", "density_1", "pm10_1", "pm2_5_1", "carbon_monoxide_1",
+    aq_values.drop(["population", "density"], axis=1, inplace=True)
+    aq_values.columns = ["pm10_1", "pm2_5_1", "carbon_monoxide_1",
                          "nitrogen_dioxide_1", "sulphur_dioxide_1"]
     aq_population_df = normalize_aq_population()
+    aq_avg_norm = aq_population_df[["pm10", "pm2_5", "carbon_monoxide", "nitrogen_dioxide", "sulphur_dioxide"]].mean(axis=1)
     aq_population_df = aq_population_df.merge(aq_values, on="city", how="left")
+    aq_population_df["aq_avg"] = aq_avg_norm.values
 
     source = ColumnDataSource(aq_population_df)
     plot = figure(x_range=locations, title="Air Quality", height=400, width=800)
@@ -90,6 +93,7 @@ def create_plot():
 
     population_line = plot.line(locations, aq_population_df["population"], width=3, color=Bokeh8[5])
     density_line = plot.line(locations, aq_population_df["density"], width=3, color=Bokeh8[6])
+    aq_avg_line = plot.line(locations, aq_population_df["aq_avg"], width=3, color=Bokeh8[7])
 
     # legend_aq = Legend(items=items_aq, location=(10, 150))
     # legend_aq.title = "Bars:"
@@ -102,6 +106,7 @@ def create_plot():
 
     items_aq.append(("population", [population_line]))
     items_aq.append(("density", [density_line]))
+    items_aq.append(("average air quality", [aq_avg_line]))
     legend = Legend(items=items_aq, location=(10, 150))
     plot.add_layout(legend, "right")
 
