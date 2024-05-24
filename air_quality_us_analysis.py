@@ -14,6 +14,8 @@ locations = ["New York", "Los Angeles", "Chicago", "Dallas", "Phoenix", "San Fra
 
 
 def download_us_cities():
+    # dane pobrane ze strony https://simplemaps.com/data/us-cities
+
     us_cities_all = pd.read_csv("uscities.csv")
     us_cities_chosen = us_cities_all.loc[:, ["city", "population", "density"]]
     us_cities_chosen = us_cities_chosen[(us_cities_chosen.loc[:, "city"].isin(locations)) & (us_cities_chosen["population"] > 1000000)]
