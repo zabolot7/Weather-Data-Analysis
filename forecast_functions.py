@@ -141,8 +141,10 @@ def create_full_chart(combined_forecast_accuracy):
         forecast_devs_df = combined_forecast_accuracy[variable_select.value]
         plot.yaxis.axis_label = first_variable
         for city_id in range(len(locations)):
+            muted = lines[city_id].muted
             plot.renderers.remove(lines[city_id])
             lines[city_id] = plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]], color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
+            lines[city_id].muted = muted
 
     variable_select = Select(title="Variable:", value=variables[0], options=variables)
     variable_select.on_change('value', update_plot)
