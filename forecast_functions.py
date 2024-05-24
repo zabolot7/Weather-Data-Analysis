@@ -104,7 +104,8 @@ def create_chart_forecast_accuracy_over_time(variable, forecast_devs_df):
     plot.title.text = title_text
 
     for city_id in range(len(locations)):
-        plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]], color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
+        plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]],
+                  color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
 
     plot.add_layout(plot.legend[0], 'right')
 
