@@ -1,12 +1,7 @@
 import pandas as pd
-import scipy
 
-from scipy import stats
-
-from bokeh.io import curdoc
-from bokeh.layouts import column, row
-from bokeh.models import Select, ColumnDataSource, Legend, HoverTool
-from bokeh.palettes import Bokeh8, turbo, cividis, viridis, magma
+from bokeh.models import ColumnDataSource, Legend, HoverTool
+from bokeh.palettes import Bokeh8
 from bokeh.plotting import figure
 from bokeh.io import show
 from bokeh.transform import dodge
@@ -20,7 +15,8 @@ def download_us_cities():
 
     us_cities_all = pd.read_csv("uscities.csv")
     us_cities_chosen = us_cities_all.loc[:, ["city", "population", "density"]]
-    us_cities_chosen = us_cities_chosen[(us_cities_chosen.loc[:, "city"].isin(locations)) & (us_cities_chosen["population"] > 1000000)]
+    us_cities_chosen = us_cities_chosen[(us_cities_chosen.loc[:, "city"].isin(locations)) &
+                                        (us_cities_chosen["population"] > 1000000)]
     us_cities_chosen.reset_index(inplace=True, drop=True)
     return us_cities_chosen
 
@@ -39,7 +35,6 @@ def calculate_city_avgs():
     for location in locations:
         current_avgs = get_air_quality(location)
         city_avgs = pd.concat([city_avgs, current_avgs], axis=0)
-    # city_avgs.set_index(pd.Series(locations), inplace=True)
     city_avgs.reset_index(inplace=True, drop=True)
     city_avgs["city"] = pd.Series(locations)
     return city_avgs
@@ -50,13 +45,6 @@ def merge_population_aq():
     city_population = download_us_cities()
     full_df = city_population.merge(city_avgs, on="city")
     return full_df
-
-
-# def standardise_aq_population():
-#     aq_population_df = merge_population_aq()
-#     for column in aq_population_df.columns[1:]:
-#         aq_population_df[column] = stats.zscore(aq_population_df[column])
-#     return aq_population_df
 
 
 def normalize_aq_population():
@@ -77,14 +65,15 @@ def create_plot():
     aq_population_df = aq_population_df.merge(aq_values, on="city", how="left")
     aq_population_df["aq_avg"] = aq_avg_norm.values
 
+    print(aq_population_df)
     source = ColumnDataSource(aq_population_df)
     plot = figure(x_range=locations, title="Air quality vs population", height=400, width=800, toolbar_location=None)
     variables = aq_population_df.columns[3:8]
     offset = -0.3
     items_aq = []
     for variable_id in range(len(variables)):
-        vbar = plot.vbar(x=dodge("city", offset, range=plot.x_range), top=variables[variable_id], source=source,
-                  width=0.12, color=Palette[variable_id+1])
+        vbar = plot.vbar(x=dodge("city", offset, range=plot.x_range), top=variables[variable_id],
+                         source=source, width=0.12, color=Palette[variable_id+1])
         offset += 0.15
         items_aq.append((variables[variable_id], [vbar]))
         hover = HoverTool(tooltips=[
@@ -96,30 +85,21 @@ def create_plot():
     density_line = plot.line(locations, aq_population_df["density"], width=3, color="#8b489c")
     aq_avg_line = plot.line(locations, aq_population_df["aq_avg"], width=3, color=Palette[0])
 
-    # legend_aq = Legend(items=items_aq, location=(10, 150))
-    # legend_aq.title = "Bars:"
-    # plot.add_layout(legend_aq, "right")
-    #
-    # items_lines = [("population", [population_line]), ("density", [density_line])]
-    # legend_lines = Legend(items=items_lines, location=(10, 150))
-    # legend_lines.title = "Lines:"
-    # plot.add_layout(legend_lines, "right")
-
     items_aq.append(("population", [population_line]))
     items_aq.append(("population density", [density_line]))
     items_aq.append(("average air quality", [aq_avg_line]))
     legend = Legend(items=items_aq, location=(10, 150))
     plot.add_layout(legend, "right")
 
-    #legends = column(legend_aq, legend_lines)
-
     plot.legend.click_policy = "hide"
     plot.yaxis.visible = False
 
     show(plot)
 
+
 def main():
     create_plot()
+
 
 if __name__ == "__main__":
     main()
