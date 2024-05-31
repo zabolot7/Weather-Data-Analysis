@@ -1,12 +1,6 @@
-import numpy as np
 import pandas as pd
 
-from bokeh.io import curdoc
-from bokeh.layouts import column, row
-from bokeh.models import Range1d, Select, DateRangeSlider, DatetimeTickFormatter, Legend, HoverTool
-from bokeh.palettes import Bokeh6, Blues9, Set1_3
-from bokeh.plotting import figure
-from bokeh.io import show
+from bokeh.palettes import Set1_3
 from bokeh.models import ColumnDataSource, FactorRange
 from bokeh.plotting import figure, show
 from bokeh.transform import factor_cmap
