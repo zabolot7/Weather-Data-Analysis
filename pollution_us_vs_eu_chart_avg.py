@@ -1,4 +1,4 @@
-import pollution_eu_vs_us_functions as f
+import pollution_us_vs_eu_functions as f
 
 
 def main():
