@@ -118,6 +118,8 @@ def create_plot():
 
     show(plot)
 
+def main():
+    create_plot()
 
-create_plot()
-
+if __name__ == "__main__":
+    main()
