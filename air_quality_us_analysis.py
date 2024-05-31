@@ -77,7 +77,7 @@ def create_plot():
     aq_population_df["aq_avg"] = aq_avg_norm.values
 
     source = ColumnDataSource(aq_population_df)
-    plot = figure(x_range=locations, title="Air Quality", height=400, width=800)
+    plot = figure(x_range=locations, title="Air Quality", height=400, width=800, toolbar_location=None)
     variables = aq_population_df.columns[3:8]
     offset = -0.3
     items_aq = []
