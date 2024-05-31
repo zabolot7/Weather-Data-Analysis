@@ -6,13 +6,14 @@ from scipy import stats
 from bokeh.io import curdoc
 from bokeh.layouts import column, row
 from bokeh.models import Select, ColumnDataSource, Legend, HoverTool
-from bokeh.palettes import Bokeh8
+from bokeh.palettes import Bokeh8, turbo, cividis, viridis, magma
 from bokeh.plotting import figure
 from bokeh.io import show
 from bokeh.transform import dodge
 
 locations = ["New York", "Los Angeles", "Chicago", "Dallas", "Phoenix", "San Francisco", "Portland", "Nashville"]
 
+Palette = Bokeh8
 
 def download_us_cities():
     # dane pobrane ze strony https://simplemaps.com/data/us-cities
@@ -77,13 +78,13 @@ def create_plot():
     aq_population_df["aq_avg"] = aq_avg_norm.values
 
     source = ColumnDataSource(aq_population_df)
-    plot = figure(x_range=locations, title="Air Quality", height=400, width=800, toolbar_location=None)
+    plot = figure(x_range=locations, title="Air quality vs population", height=400, width=800, toolbar_location=None)
     variables = aq_population_df.columns[3:8]
     offset = -0.3
     items_aq = []
     for variable_id in range(len(variables)):
         vbar = plot.vbar(x=dodge("city", offset, range=plot.x_range), top=variables[variable_id], source=source,
-                  width=0.12, color=Bokeh8[variable_id])
+                  width=0.12, color=Palette[variable_id+1])
         offset += 0.15
         items_aq.append((variables[variable_id], [vbar]))
         hover = HoverTool(tooltips=[
@@ -91,9 +92,9 @@ def create_plot():
         ], renderers=[vbar])
         plot.add_tools(hover)
 
-    population_line = plot.line(locations, aq_population_df["population"], width=3, color=Bokeh8[5])
-    density_line = plot.line(locations, aq_population_df["density"], width=3, color=Bokeh8[6])
-    aq_avg_line = plot.line(locations, aq_population_df["aq_avg"], width=3, color=Bokeh8[7])
+    population_line = plot.line(locations, aq_population_df["population"], width=3, color="#333333")
+    density_line = plot.line(locations, aq_population_df["density"], width=3, color="#8b489c")
+    aq_avg_line = plot.line(locations, aq_population_df["aq_avg"], width=3, color=Palette[0])
 
     # legend_aq = Legend(items=items_aq, location=(10, 150))
     # legend_aq.title = "Bars:"
@@ -105,7 +106,7 @@ def create_plot():
     # plot.add_layout(legend_lines, "right")
 
     items_aq.append(("population", [population_line]))
-    items_aq.append(("density", [density_line]))
+    items_aq.append(("population density", [density_line]))
     items_aq.append(("average air quality", [aq_avg_line]))
     legend = Legend(items=items_aq, location=(10, 150))
     plot.add_layout(legend, "right")
@@ -113,6 +114,7 @@ def create_plot():
     #legends = column(legend_aq, legend_lines)
 
     plot.legend.click_policy = "hide"
+    plot.yaxis.visible = False
 
     show(plot)
 
