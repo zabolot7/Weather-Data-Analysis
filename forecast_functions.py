@@ -102,6 +102,19 @@ def calculate_city_avgs(variable):
     return city_avgs
 
 
+def calculate_city_avg_windspeeds():
+    avg_windspeeds = []
+    for location in locations:
+        actual_filename = "weather_" + location + ".csv"
+        city_actual_df = pd.read_csv(actual_filename)
+        print(city_actual_df)
+        windspeed_data = city_actual_df.loc[:, "wind_speed_10m"].mean()
+        avg_windspeeds.append(windspeed_data)
+    # avg_windspeeds = pd.DataFrame(avg_windspeeds).T
+    # avg_windspeeds.columns = locations
+    return avg_windspeeds
+
+
 # Tej funkcji nie używamy
 def create_chart_forecast_accuracy_over_time(variable, forecast_devs_df):
     title_text = variable + "_forecast_devs_chart"
