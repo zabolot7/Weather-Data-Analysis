@@ -2,6 +2,7 @@ import forecast_functions as f
 from bokeh.plotting import figure, show
 from bokeh.palettes import Bokeh6
 
+
 def create_chart(avg_windspeeds):
     locations = ["Rovaniemi", "Warsaw", "Tripoli", "Kinshasa", "Cape_Town"]
     values = avg_windspeeds
@@ -19,9 +20,11 @@ def create_chart(avg_windspeeds):
 
     show(plot)
 
+
 def main():
     avg_windspeeds = f.calculate_city_avg_windspeeds()
     create_chart(avg_windspeeds)
+
 
 if __name__ == "__main__":
     main()

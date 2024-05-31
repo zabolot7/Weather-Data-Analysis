@@ -6,7 +6,6 @@ from bokeh.layouts import column, row
 from bokeh.models import Range1d, Select, DateRangeSlider, DatetimeTickFormatter, Legend, HoverTool
 from bokeh.palettes import Bokeh6, Blues9
 from bokeh.plotting import figure
-from bokeh.io import show
 
 locations = ["Rovaniemi", "Warsaw", "Tripoli", "Kinshasa", "Cape_Town"]
 variables = ["temperature_2m", "precipitation", "cloud_cover", "wind_speed_10m", "wind_direction_10m"]
@@ -110,31 +109,7 @@ def calculate_city_avg_windspeeds():
         print(city_actual_df)
         windspeed_data = city_actual_df.loc[:, "wind_speed_10m"].mean()
         avg_windspeeds.append(windspeed_data)
-    # avg_windspeeds = pd.DataFrame(avg_windspeeds).T
-    # avg_windspeeds.columns = locations
     return avg_windspeeds
-
-
-# Tej funkcji nie używamy
-def create_chart_forecast_accuracy_over_time(variable, forecast_devs_df):
-    title_text = variable + "_forecast_devs_chart"
-
-    plot = figure(width=800, height=400)
-    plot.x_range = Range1d(7, 0)
-    plot.title.text = title_text
-
-    for city_id in range(len(locations)):
-        plot.line([0, 1, 2, 3, 4, 5, 6, 7], forecast_devs_df.loc[:, locations[city_id]],
-                  color=Bokeh6[city_id + 1], width=3, legend_label=locations[city_id])
-
-    plot.add_layout(plot.legend[0], 'right')
-
-    plot.xaxis.axis_label = "forecast from _ days before"
-    plot.yaxis.axis_label = variable
-
-    plot.legend.click_policy = "mute"
-
-    show(plot)
 
 
 def create_full_chart(combined_forecast_accuracy):
@@ -276,9 +251,3 @@ def create_chart_by_city(forecast_accuracy):
     curdoc().add_root(layout)
     curdoc().title = "forecast_accuracy_full_chart"
 
-
-# def main():
-#     pass
-#
-# if __name__ == "__main__":
-#     main()
