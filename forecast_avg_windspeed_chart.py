@@ -8,8 +8,7 @@ def create_chart(avg_windspeeds):
     values = avg_windspeeds
 
     plot = figure(x_range=locations, title="Average wind speed by city", x_axis_label='city', y_axis_label='wind speed [km/h]')
-
-    colors=[]
+    colors = []
     for i in range(5):
         colors.append(Bokeh6[i+1])
 
