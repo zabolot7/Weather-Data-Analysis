@@ -4,6 +4,7 @@ import requests_cache
 import pandas as pd
 from retry_requests import retry
 
+
 def download_aq_csv():
     cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
     retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
@@ -24,7 +25,6 @@ def download_aq_csv():
     for location_id in range(len(responses)):
         response = responses[location_id]
 
-        # Process hourly data. The order of variables needs to be the same as requested.
         hourly = response.Hourly()
         hourly_pm10 = hourly.Variables(0).ValuesAsNumpy()
         hourly_pm2_5 = hourly.Variables(1).ValuesAsNumpy()
