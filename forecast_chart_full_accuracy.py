@@ -1,3 +1,6 @@
+# this file needs to be run from console
+# while being in te correct directory, paste into console: bokeh serve --show nazwaPliku
+
 import forecast_functions as f
 
 combined_forecast_accuracy = dict()

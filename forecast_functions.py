@@ -106,7 +106,6 @@ def calculate_city_avg_windspeeds():
     for location in locations:
         actual_filename = "weather_" + location + ".csv"
         city_actual_df = pd.read_csv(actual_filename)
-        print(city_actual_df)
         windspeed_data = city_actual_df.loc[:, "wind_speed_10m"].mean()
         avg_windspeeds.append(windspeed_data)
     return avg_windspeeds

@@ -1,3 +1,6 @@
+# this file needs to be run from console
+# while being in te correct directory, paste into console: bokeh serve --show nazwaPliku
+
 import forecast_functions as f
 
 forecast_accuracy = [[0]*len(f.locations) for i in range(len(f.variables))]

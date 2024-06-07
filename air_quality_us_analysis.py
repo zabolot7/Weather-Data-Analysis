@@ -65,7 +65,6 @@ def create_plot():
     aq_population_df = aq_population_df.merge(aq_values, on="city", how="left")
     aq_population_df["aq_avg"] = aq_avg_norm.values
 
-    print(aq_population_df)
     source = ColumnDataSource(aq_population_df)
     plot = figure(x_range=locations, title="Air quality vs population", height=400, width=800, toolbar_location=None)
     variables = aq_population_df.columns[3:8]
