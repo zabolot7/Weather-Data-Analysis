@@ -10,6 +10,10 @@ The first part of the project focused on analysing the accuracy of weather forec
 
 <img width="683" height="685" alt="image" src="https://github.com/user-attachments/assets/9123f065-87e3-4e69-90dc-ffab3e4be419" />
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/9123f065-87e3-4e69-90dc-ffab3e4be419" />
+</p>
+
 In the second part, we dive deeper into analysing the data about air pollution.
 
 <img width="1585" height="798" alt="image" src="https://github.com/user-attachments/assets/7856a3d0-da5d-4064-a7e4-9b6a584ec3a9" />
