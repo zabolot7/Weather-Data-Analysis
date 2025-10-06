@@ -5,7 +5,7 @@ This project focuses on the analysis and visualisation of weather data. It was c
 The first part of the project focused on analysing the accuracy of weather forecasts and how it correlates with various factors such as location or the predicted weather variable (temperature, wind speed, wind direction, precipitation, cloud cover, etc). 
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/c8e41e2d-70a4-45c1-b75f-496597300ff2" /> <br/>
+  <img src="https://github.com/user-attachments/assets/c8e41e2d-70a4-45c1-b75f-496597300ff2" /> <br/><br/>
   <img src="https://github.com/user-attachments/assets/f2e58033-2acd-4c43-bc4e-39a1cd6b3716" /> <br/>
   <img src="https://github.com/user-attachments/assets/9123f065-87e3-4e69-90dc-ffab3e4be419" /> <br/>
 </p>
