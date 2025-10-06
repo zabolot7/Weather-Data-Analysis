@@ -11,6 +11,8 @@ The first part of the project focused on analysing the accuracy of weather forec
 <img width="683" height="685" alt="image" src="https://github.com/user-attachments/assets/9123f065-87e3-4e69-90dc-ffab3e4be419" />
 
 <p align="center">
+  <img src="https://github.com/user-attachments/assets/c8e41e2d-70a4-45c1-b75f-496597300ff2" />
+  <img src="https://github.com/user-attachments/assets/f2e58033-2acd-4c43-bc4e-39a1cd6b3716" />
   <img src="https://github.com/user-attachments/assets/9123f065-87e3-4e69-90dc-ffab3e4be419" />
 </p>
 
