@@ -1,4 +1,4 @@
-<img width="1423" height="837" alt="image" src="https://github.com/user-attachments/assets/f58729df-e6f0-41d4-a574-74d0c289d9d8" /># Weather Data Analysis
+# Weather Data Analysis
 
 This project focuses on the analysis and visualisation of weather data. It was created in the 2023/2024 summer semester by Hanna Szczerbińska and Martyna Sadowska as part of the Structured Data Processing course @ WUT. 
 
